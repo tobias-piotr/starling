@@ -1,2 +1,3 @@
-# starling
-Travelling assistant
+# 🐦‍⬛ starling
+
+Smart traveling assistant.
