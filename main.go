@@ -10,6 +10,7 @@ import (
 func main() {
 	if err := run(); err != nil {
 		slog.Error("Failed to start the app", "error", err)
+		os.Exit(1)
 	}
 }
 

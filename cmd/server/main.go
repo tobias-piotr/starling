@@ -3,6 +3,7 @@ package server
 import (
 	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -16,6 +17,7 @@ type Options struct {
 func main() {
 	if err := Run(nil); err != nil {
 		slog.Error("Failed to run server", "error", err)
+		os.Exit(1)
 	}
 }
 
