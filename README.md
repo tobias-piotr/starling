@@ -14,3 +14,4 @@ Initial plan:
 - AI-based responses
 - Requests to external APIs to get offers and prices
 - Export functionality
+- Discord bot as a UI
