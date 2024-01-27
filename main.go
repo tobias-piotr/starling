@@ -16,6 +16,7 @@ func main() {
 }
 
 func run() error {
+	setLogger()
 	db, err := database.GetConnection(os.Getenv("DATABASE_DSN"))
 	if err != nil {
 		return err
