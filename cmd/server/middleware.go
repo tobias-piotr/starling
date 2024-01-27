@@ -11,7 +11,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func NewLoggingMiddleware(opts *Options) echo.MiddlewareFunc {
+func NewLoggingMiddleware() echo.MiddlewareFunc {
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogStatus:    true,
 		LogURI:       true,
@@ -38,7 +38,7 @@ func NewLoggingMiddleware(opts *Options) echo.MiddlewareFunc {
 			}
 
 			if v.Error == nil {
-				opts.Logger.LogAttrs(context.Background(),
+				slog.LogAttrs(context.Background(),
 					slog.LevelInfo,
 					msg,
 					slog.String("level", "info"),
@@ -48,7 +48,7 @@ func NewLoggingMiddleware(opts *Options) echo.MiddlewareFunc {
 					slog.Any("http", httpMap),
 				)
 			} else {
-				opts.Logger.LogAttrs(context.Background(),
+				slog.LogAttrs(context.Background(),
 					slog.LevelError,
 					msg,
 					slog.String("level", "error"),

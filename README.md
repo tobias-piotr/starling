@@ -15,3 +15,23 @@ Initial plan:
 - Requests to external APIs to get offers and prices
 - Export functionality
 - Discord bot as a UI
+
+## Installation
+
+Set up the `.env` file:
+
+```
+DATABASE_DSN="host=postgres port=5432 user=postgres dbname=puffin password=postgres sslmode=disable"
+```
+
+Build the Docker images:
+
+```
+make build
+```
+
+Start the Docker containers:
+
+```
+make up
+```

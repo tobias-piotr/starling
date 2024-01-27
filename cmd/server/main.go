@@ -6,12 +6,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 type Options struct {
-	Logger *slog.Logger
+	DB *sqlx.DB
 }
 
 func main() {
@@ -24,7 +25,7 @@ func main() {
 func Run(opts *Options) error {
 	e := echo.New()
 
-	e.Use(NewLoggingMiddleware(opts))
+	e.Use(NewLoggingMiddleware())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
