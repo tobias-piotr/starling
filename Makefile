@@ -23,3 +23,7 @@ enter: ## Enter server container
 .PHONY: test
 test: ## Run tests with ignored caching
 	go test -count=1 ./...
+
+.PHONY: migration
+migration: ## Generate migration
+	goose create $(name) sql && mv *_$(name).sql ./internal/database/migrations/
