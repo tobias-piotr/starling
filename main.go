@@ -21,6 +21,9 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	if err := database.Migrate(db); err != nil {
+		return err
+	}
 	options := server.Options{DB: db}
 	return server.Run(&options)
 }
