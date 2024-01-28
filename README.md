@@ -16,6 +16,15 @@ Initial plan:
 - Export functionality
 - Discord bot as a UI
 
+Final document:
+
+- General description
+- Attractions
+- Weather
+- Prices
+- What to take (clothes, documents)
+- Commuting
+
 ## Installation
 
 Set up the `.env` file:
