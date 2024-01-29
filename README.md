@@ -25,6 +25,10 @@ Final document:
 - What to take (clothes, documents)
 - Commuting
 
+Extra:
+
+- Retry steps
+
 ## Installation
 
 Set up the `.env` file:
