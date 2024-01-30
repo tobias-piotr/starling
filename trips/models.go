@@ -6,9 +6,23 @@ import (
 	"github.com/google/uuid"
 )
 
+type TripStatus int64
+
+const (
+	Draft     TripStatus = iota
+	Requested            = iota
+	Failed               = iota
+	Completed            = iota
+)
+
+func (s TripStatus) String() string {
+	return [...]string{"draft", "requested", "failed", "completed"}[s]
+}
+
 type Trip struct {
 	ID           uuid.UUID
 	CreatedAt    time.Time
+	Status       TripStatus
 	Name         string
 	Destination  string
 	Origin       string
