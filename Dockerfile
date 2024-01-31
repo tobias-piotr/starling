@@ -1,6 +1,6 @@
 FROM golang:1.21.3-alpine AS builder
 
-EXPOSE 8008
+EXPOSE 8888
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ ENV DEBUG=true
 # Install air for hot reloading
 RUN go install github.com/cosmtrek/air@latest
 
-ENTRYPOINT ["air"]
+CMD ["air", "server"]
 
 # Production
 FROM gcr.io/distroless/base-debian11 AS prod
@@ -30,4 +30,4 @@ COPY --from=builder /main /main
 
 USER nonroot:nonroot
 
-ENTRYPOINT ["/main"]
+CMD ["./main", "server"]
