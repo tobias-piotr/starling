@@ -1,3 +1,6 @@
+/*
+Copyright © 2024 Piotr Tobiasz
+*/
 package server
 
 import (
@@ -6,35 +9,50 @@ import (
 	"os"
 	"time"
 
-	"github.com/jmoiron/sqlx"
+	"starling/cmd"
+	"starling/internal/database"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/spf13/cobra"
 )
 
-type Options struct {
-	DB *sqlx.DB
+var port string
+
+var serverCmd = &cobra.Command{
+	Use:   "server",
+	Short: "Starts server",
+	Run: func(_ *cobra.Command, _ []string) {
+		db, err := database.GetConnection(os.Getenv("DATABASE_DSN"))
+		if err != nil {
+			slog.Error("Failed to connect to database", "error", err)
+			os.Exit(1)
+		}
+		if err := database.Migrate(db); err != nil {
+			slog.Error("Failed to migrate database", "error", err)
+			os.Exit(1)
+		}
+
+		e := echo.New()
+
+		e.Use(NewLoggingMiddleware())
+		e.Use(middleware.Recover())
+		e.Use(middleware.CORS())
+		e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
+		e.Use(middleware.RequestID())
+		e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{Timeout: time.Second * 60}))
+
+		e.GET("/", func(c echo.Context) error {
+			return c.String(http.StatusOK, "Hello, World!")
+		})
+
+		e.Start(":" + port)
+	},
 }
 
-func main() {
-	if err := Run(nil); err != nil {
-		slog.Error("Failed to run server", "error", err)
-		os.Exit(1)
-	}
-}
+func init() {
+	cmd.RootCmd.AddCommand(serverCmd)
 
-func Run(opts *Options) error {
-	e := echo.New()
-
-	e.Use(NewLoggingMiddleware())
-	e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
-	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
-	e.Use(middleware.RequestID())
-	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{Timeout: time.Second * 60}))
-
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
-	})
-
-	return e.Start(":8888")
+	// Server port
+	serverCmd.Flags().StringVarP(&port, "port", "p", "8888", "Port to listen on")
 }
