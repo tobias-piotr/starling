@@ -3,10 +3,10 @@ package trips
 type TripEvent int64
 
 const (
-	TripCreated TripStatus = iota
+	TripCreated TripEvent = iota
 	TripRequested
 )
 
-func (s TripStatus) String() string {
-	return [...]string{"trip_created", "trip_requested"}[s]
+func (e TripEvent) String() string {
+	return [...]string{"trip_created", "trip_requested"}[e]
 }
