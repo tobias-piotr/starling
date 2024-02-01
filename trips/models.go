@@ -6,38 +6,25 @@ import (
 	"github.com/google/uuid"
 )
 
-type TripStatus int64
-
-const (
-	Draft     TripStatus = iota
-	Requested            = iota
-	Failed               = iota
-	Completed            = iota
-)
-
-func (s TripStatus) String() string {
-	return [...]string{"draft", "requested", "failed", "completed"}[s]
-}
-
 type Trip struct {
-	ID           uuid.UUID
-	CreatedAt    time.Time
-	Status       TripStatus
-	Name         string
-	Destination  string
-	Origin       string
-	DateFrom     time.Time
-	DateTo       time.Time
-	Budget       int64
-	Requirements string
+	ID           uuid.UUID  `json:"id"`
+	CreatedAt    time.Time  `json:"created_at"`
+	Status       TripStatus `json:"status"`
+	Name         string     `json:"name"`
+	Destination  string     `json:"destination"`
+	Origin       string     `json:"origin"`
+	DateFrom     Date       `json:"date_from"`
+	DateTo       Date       `json:"date_to"`
+	Budget       int64      `json:"budget"`
+	Requirements string     `json:"requirements"`
 }
 
 type TripData struct {
 	Name         string
 	Destination  string
 	Origin       string
-	DateFrom     time.Time
-	DateTo       time.Time
+	DateFrom     Date `json:"date_from"`
+	DateTo       Date `json:"date_to"`
 	Budget       int64
 	Requirements string
 }
