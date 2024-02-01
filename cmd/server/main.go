@@ -11,13 +11,17 @@ import (
 
 	"starling/cmd"
 	"starling/internal/database"
+	trips_api "starling/trips/api"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/cobra"
 )
 
-var port string
+var (
+	port   string
+	prefix string
+)
 
 var serverCmd = &cobra.Command{
 	Use:   "server",
@@ -41,10 +45,13 @@ var serverCmd = &cobra.Command{
 		e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
 		e.Use(middleware.RequestID())
 		e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{Timeout: time.Second * 60}))
+		e.Pre(middleware.AddTrailingSlash())
 
-		e.GET("/", func(c echo.Context) error {
-			return c.String(http.StatusOK, "Hello, World!")
+		router := e.Group(prefix)
+		router.GET("/health", func(c echo.Context) error {
+			return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 		})
+		trips_api.Register(router)
 
 		e.Start(":" + port)
 	},
@@ -55,4 +62,6 @@ func init() {
 
 	// Server port
 	serverCmd.Flags().StringVarP(&port, "port", "p", "8888", "Port to listen on")
+	// Server prefix
+	serverCmd.Flags().StringVarP(&prefix, "prefix", "r", "/sl", "Prefix for all routes")
 }
