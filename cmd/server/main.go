@@ -13,6 +13,7 @@ import (
 	"starling/internal/database"
 	trips_api "starling/trips/api"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/cobra"
@@ -23,35 +24,45 @@ var (
 	prefix string
 )
 
+func getDB() *sqlx.DB {
+	db, err := database.GetConnection(os.Getenv("DATABASE_DSN"))
+	if err != nil {
+		slog.Error("Failed to connect to database", "error", err)
+		os.Exit(1)
+	}
+	if err := database.Migrate(db); err != nil {
+		slog.Error("Failed to migrate database", "error", err)
+		os.Exit(1)
+	}
+	return db
+}
+
+func createServer() *echo.Echo {
+	e := echo.New()
+
+	e.Use(NewLoggingMiddleware())
+	e.Use(middleware.Recover())
+	e.Use(middleware.CORS())
+	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
+	e.Use(middleware.RequestID())
+	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{Timeout: time.Second * 60}))
+	e.Pre(middleware.AddTrailingSlash())
+
+	return e
+}
+
 var serverCmd = &cobra.Command{
 	Use:   "server",
 	Short: "Starts server",
 	Run: func(_ *cobra.Command, _ []string) {
-		db, err := database.GetConnection(os.Getenv("DATABASE_DSN"))
-		if err != nil {
-			slog.Error("Failed to connect to database", "error", err)
-			os.Exit(1)
-		}
-		if err := database.Migrate(db); err != nil {
-			slog.Error("Failed to migrate database", "error", err)
-			os.Exit(1)
-		}
-
-		e := echo.New()
-
-		e.Use(NewLoggingMiddleware())
-		e.Use(middleware.Recover())
-		e.Use(middleware.CORS())
-		e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
-		e.Use(middleware.RequestID())
-		e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{Timeout: time.Second * 60}))
-		e.Pre(middleware.AddTrailingSlash())
+		db := getDB()
+		e := createServer()
 
 		router := e.Group(prefix)
 		router.GET("/health", func(c echo.Context) error {
 			return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 		})
-		trips_api.Register(router)
+		trips_api.Register(router, db)
 
 		e.Start(":" + port)
 	},
