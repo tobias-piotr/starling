@@ -2,6 +2,8 @@ package trips
 
 import (
 	"fmt"
+
+	"starling/internal/ai"
 )
 
 const (
@@ -23,7 +25,7 @@ Requirements: %s
 `
 )
 
-func GenerateSummary(client AIClient, trip *Trip) (string, error) {
+func GenerateSummary(client ai.AIClient, trip *Trip) (string, error) {
 	prompt := fmt.Sprintf(
 		basePrompt+summaryPrompt,
 		trip.Origin,

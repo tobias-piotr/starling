@@ -8,7 +8,9 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type TripsAPIHandler struct{}
+type TripsAPIHandler struct {
+	tripService *trips.TripService
+}
 
 func (t *TripsAPIHandler) CreateTrip(c echo.Context) error {
 	// TODO: Validate dates etc.
@@ -17,10 +19,7 @@ func (t *TripsAPIHandler) CreateTrip(c echo.Context) error {
 		return err
 	}
 
-	// TODO: Inject this
-	srv := trips.TripService{}
-
-	trip, err := srv.CreateTrip(data)
+	trip, err := t.tripService.CreateTrip(data)
 	if err != nil {
 		return err
 	}

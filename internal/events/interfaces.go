@@ -1,5 +1,10 @@
 package events
 
+type Event interface {
+	String() string
+	Payload() map[string]any
+}
+
 type EventBus interface {
-	Publish(event string, payload map[string]any) error
+	Publish(event Event) error
 }
