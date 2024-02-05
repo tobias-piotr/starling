@@ -10,6 +10,10 @@ type TripService struct {
 	eventBus       events.EventBus
 }
 
+func NewTripService(tripRepository TripRepository, eventBus events.EventBus) *TripService {
+	return &TripService{tripRepository, eventBus}
+}
+
 func (s *TripService) CreateTrip(data *TripData) (*Trip, error) {
 	// Create trip
 	trip, err := s.tripRepository.Create(data)
@@ -18,7 +22,7 @@ func (s *TripService) CreateTrip(data *TripData) (*Trip, error) {
 	}
 
 	// Publish event
-	go s.eventBus.Publish(TripCreated.String(), map[string]any{"trip_id": trip.ID})
+	go s.eventBus.Publish(TripCreated{tripID: trip.ID})
 
 	return trip, nil
 }
