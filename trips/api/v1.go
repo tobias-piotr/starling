@@ -26,3 +26,12 @@ func (t *TripsAPIHandler) CreateTrip(c echo.Context) error {
 
 	return c.JSON(http.StatusCreated, trip)
 }
+
+func (t *TripsAPIHandler) GetTrips(c echo.Context) error {
+	trips, err := t.tripService.GetTrips()
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, trips)
+}
