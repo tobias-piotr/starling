@@ -8,13 +8,13 @@ import (
 
 type Trip struct {
 	ID           uuid.UUID  `json:"id"`
-	CreatedAt    time.Time  `json:"created_at"`
+	CreatedAt    time.Time  `json:"created_at" db:"created_at"`
 	Status       TripStatus `json:"status"`
 	Name         string     `json:"name"`
 	Destination  string     `json:"destination"`
 	Origin       string     `json:"origin"`
-	DateFrom     Date       `json:"date_from"`
-	DateTo       Date       `json:"date_to"`
+	DateFrom     Date       `json:"date_from" db:"date_from"`
+	DateTo       Date       `json:"date_to" db:"date_to"`
 	Budget       int64      `json:"budget"`
 	Requirements string     `json:"requirements"`
 }

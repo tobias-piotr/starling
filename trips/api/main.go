@@ -21,4 +21,5 @@ func Register(g *echo.Group, db *sqlx.DB) {
 
 	h := NewTripsAPIHandler(db)
 	v1.POST("/", h.CreateTrip)
+	v1.GET("/", h.GetTrips)
 }

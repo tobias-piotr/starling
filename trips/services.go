@@ -26,3 +26,8 @@ func (s *TripService) CreateTrip(data *TripData) (*Trip, error) {
 
 	return trip, nil
 }
+
+func (s *TripService) GetTrips() ([]*Trip, error) {
+	// TODO: Add pagination
+	return s.tripRepository.GetAll()
+}
