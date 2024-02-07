@@ -35,6 +35,7 @@ Set up the `.env` file:
 
 ```
 DATABASE_DSN="host=postgres port=5432 user=postgres dbname=starling password=postgres sslmode=disable"
+REDIS_ADDR=redis:6379
 ```
 
 Build the Docker images:

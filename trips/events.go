@@ -12,7 +12,7 @@ func (e TripCreated) String() string {
 }
 
 func (e TripCreated) Payload() map[string]any {
-	return map[string]any{"trip_id": e.tripID}
+	return map[string]any{"type": e.String(), "trip_id": e.tripID.String()}
 }
 
 // TripRequested is an event that is published when a trip is requested
@@ -25,5 +25,5 @@ func (e TripRequested) String() string {
 }
 
 func (e TripRequested) Payload() map[string]any {
-	return map[string]any{"trip_id": e.tripID}
+	return map[string]any{"type": e.String(), "trip_id": e.tripID.String()}
 }

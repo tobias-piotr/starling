@@ -7,4 +7,5 @@ type Event interface {
 
 type EventBus interface {
 	Publish(event Event) error
+	Read(listener chan map[string]any) error
 }

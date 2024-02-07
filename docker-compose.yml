@@ -24,8 +24,8 @@ services:
     <<: *default-app
     command: air worker
     # If you don't need it
-    profiles:
-      - donotstart
+    # profiles:
+    #   - donotstart
 
   postgres:
     image: "postgres:16-alpine"
@@ -39,6 +39,11 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - 5432:5432
+
+  redis:
+    image: "redis:6.2-alpine"
+    ports:
+      - 6379:6379
 
 volumes:
   postgres_data: {}

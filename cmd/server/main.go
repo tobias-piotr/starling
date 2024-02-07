@@ -11,11 +11,13 @@ import (
 
 	"starling/cmd"
 	"starling/internal/database"
+	"starling/internal/events"
 	trips_api "starling/trips/api"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/redis/go-redis/v9"
 	"github.com/spf13/cobra"
 )
 
@@ -37,6 +39,15 @@ func getDB() *sqlx.DB {
 	return db
 }
 
+func getRedis() *redis.Client {
+	client, err := events.NewRedisClient(os.Getenv("REDIS_ADDR"))
+	if err != nil {
+		slog.Error("Failed to connect to redis", "error", err)
+		os.Exit(1)
+	}
+	return client
+}
+
 func createServer() *echo.Echo {
 	e := echo.New()
 
@@ -56,13 +67,14 @@ var serverCmd = &cobra.Command{
 	Short: "Starts server",
 	Run: func(_ *cobra.Command, _ []string) {
 		db := getDB()
+		redisClient := getRedis()
 		e := createServer()
 
 		router := e.Group(prefix)
 		router.GET("/health", func(c echo.Context) error {
 			return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 		})
-		trips_api.Register(router, db)
+		trips_api.Register(router, db, redisClient)
 
 		e.Start(":" + port)
 	},

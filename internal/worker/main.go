@@ -1,5 +1,9 @@
 package worker
 
+import (
+	"log/slog"
+)
+
 type (
 	Task  func() error
 	Tasks map[string][]Task
@@ -7,6 +11,7 @@ type (
 
 type Worker struct {
 	tasks Tasks
+	// TODO: Add redis here and implement ack method
 }
 
 func NewWorker() *Worker {
@@ -17,8 +22,7 @@ func (w *Worker) AddTask(event string, task Task) {
 	w.tasks[event] = append(w.tasks[event], task)
 }
 
-// TODO: Execute tasks with goroutines
-// TODO: What if something panics?
+// TODO: Check panics
 func (w Worker) Execute(event string) []error {
 	tasks, ok := w.tasks[event]
 	if !ok {
@@ -33,9 +37,19 @@ func (w Worker) Execute(event string) []error {
 	return errs
 }
 
-func (w *Worker) Run() error {
-	// TODO: Use signal to wait for events
-	w.Execute("start")
-	w.Execute("stop")
+// TODO: How to let redis know that we are done with the event?
+func (w *Worker) Run(listener chan map[string]any) error {
+	for event := range listener {
+		slog.Info("Received event", "event", event)
+
+		typ, ok := event["type"]
+		if !ok {
+			slog.Error("Event has no type", "event", event)
+			continue
+		}
+
+		// TODO: Goroutine it
+		w.Execute(typ.(string))
+	}
 	return nil
 }
