@@ -32,18 +32,18 @@ var workerCmd = &cobra.Command{
 	Run: func(_ *cobra.Command, _ []string) {
 		// TODO: Something needs to be done about stream name
 		red := getRedis()
-		bus := events.NewRedisEventBus(red, "trips")
+		bus := events.NewRedisEventBus(red, "trips", "trips-failures")
 
-		listener := make(chan map[string]any)
-
-		w := worker.NewWorker()
+		w := worker.NewWorker(bus)
 		w.AddTask(trips.TripCreated{}.String(), func() error {
 			slog.Info("Trip created")
 			return nil
 		})
 
-		go bus.Read(listener)
-		w.Run(listener)
+		if err := w.Run(); err != nil {
+			slog.Error("Worker failed", "error", err)
+			os.Exit(1)
+		}
 	},
 }
 

@@ -12,7 +12,7 @@ import (
 
 func NewTripsAPIHandler(db *sqlx.DB, redisClient *redis.Client) *TripsAPIHandler {
 	tripRepo := database.NewTripRepository(db)
-	eventBus := events.NewRedisEventBus(redisClient, "trips")
+	eventBus := events.NewRedisEventBus(redisClient, "trips", "trips-failures")
 	tripService := trips.NewTripService(tripRepo, eventBus)
 	return &TripsAPIHandler{tripService: tripService}
 }
