@@ -1,6 +1,8 @@
 package api
 
 import (
+	"os"
+
 	"starling/internal/events"
 	"starling/trips"
 	"starling/trips/database"
@@ -12,7 +14,11 @@ import (
 
 func NewTripsAPIHandler(db *sqlx.DB, redisClient *redis.Client) *TripsAPIHandler {
 	tripRepo := database.NewTripRepository(db)
-	eventBus := events.NewRedisEventBus(redisClient, "trips", "trips-failures")
+	eventBus := events.NewRedisEventBus(
+		redisClient,
+		// For publisher, only stream is needed
+		&events.RedisBusArgs{Stream: os.Getenv("REDIS_STREAM")},
+	)
 	tripService := trips.NewTripService(tripRepo, eventBus)
 	return &TripsAPIHandler{tripService: tripService}
 }

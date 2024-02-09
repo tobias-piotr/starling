@@ -30,9 +30,16 @@ var workerCmd = &cobra.Command{
 	Use:   "worker",
 	Short: "Starts worker",
 	Run: func(_ *cobra.Command, _ []string) {
-		// TODO: Something needs to be done about stream name
 		red := getRedis()
-		bus := events.NewRedisEventBus(red, "trips", "trips-failures")
+		bus := events.NewRedisEventBus(
+			red,
+			&events.RedisBusArgs{
+				Stream:        os.Getenv("REDIS_STREAM"),
+				FailureStream: os.Getenv("REDIS_FAILURE_STREAM"),
+				ConsumerGroup: os.Getenv("REDIS_CGROUP"),
+				ConsumerName:  os.Getenv("REDIS_CNAME"),
+			},
+		)
 
 		w := worker.NewWorker(bus)
 		w.AddTask(trips.TripCreated{}.String(), func() error {
