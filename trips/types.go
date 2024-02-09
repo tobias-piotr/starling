@@ -34,7 +34,7 @@ func (s TripStatus) MarshalJSON() ([]byte, error) {
 func (s *TripStatus) Scan(value any) error {
 	v, ok := value.([]byte)
 	if !ok {
-		return fmt.Errorf("failed to scan status value: %v", value)
+		return fmt.Errorf("scan status: %v", value)
 	}
 
 	for i, status := range s.Values() {
@@ -44,7 +44,7 @@ func (s *TripStatus) Scan(value any) error {
 		}
 	}
 
-	return fmt.Errorf("failed to scan status value: %v", value)
+	return fmt.Errorf("scan status: %v", value)
 }
 
 // Date is a custom type for time.Time, that gets limited to YYYY-MM-DD format
@@ -74,7 +74,7 @@ func (d Date) MarshalJSON() ([]byte, error) {
 func (s *Date) Scan(value any) error {
 	v, ok := value.(time.Time)
 	if !ok {
-		return fmt.Errorf("failed to scan date value: %v", value)
+		return fmt.Errorf("scan date: %v", value)
 	}
 
 	*s = Date{v}

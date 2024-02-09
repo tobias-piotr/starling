@@ -7,4 +7,7 @@ type Event interface {
 
 type EventBus interface {
 	Publish(event Event) error
+	Read(listener chan map[string]any) error
+	Confirm(id string) error
+	BackOff(event map[string]any) error
 }

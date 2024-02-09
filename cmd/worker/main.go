@@ -5,32 +5,52 @@ package cmd
 
 import (
 	"log/slog"
+	"os"
 
 	"starling/cmd"
+	"starling/internal/events"
 	"starling/internal/worker"
+	"starling/trips"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/spf13/cobra"
 )
+
+func getRedis() *redis.Client {
+	client, err := events.NewRedisClient(os.Getenv("REDIS_ADDR"))
+	if err != nil {
+		slog.Error("Failed to connect to redis", "error", err)
+		os.Exit(1)
+	}
+	return client
+}
 
 // workerCmd represents the worker command
 var workerCmd = &cobra.Command{
 	Use:   "worker",
 	Short: "Starts worker",
 	Run: func(_ *cobra.Command, _ []string) {
-		w := worker.NewWorker()
-		w.AddTask("start", func() error {
-			slog.Info("Starting")
+		red := getRedis()
+		bus := events.NewRedisEventBus(
+			red,
+			&events.RedisBusArgs{
+				Stream:        os.Getenv("REDIS_STREAM"),
+				FailureStream: os.Getenv("REDIS_FAILURE_STREAM"),
+				ConsumerGroup: os.Getenv("REDIS_CGROUP"),
+				ConsumerName:  os.Getenv("REDIS_CNAME"),
+			},
+		)
+
+		w := worker.NewWorker(bus)
+		w.AddTask(trips.TripCreated{}.String(), func() error {
+			slog.Info("Trip created")
 			return nil
 		})
-		w.AddTask("stop", func() error {
-			slog.Info("Stopping")
-			return nil
-		})
-		w.AddTask("stop", func() error {
-			slog.Info("Stopping again")
-			return nil
-		})
-		w.Run()
+
+		if err := w.Run(); err != nil {
+			slog.Error("Worker failed", "error", err)
+			os.Exit(1)
+		}
 	},
 }
 
