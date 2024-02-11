@@ -8,7 +8,7 @@ import (
 )
 
 type (
-	Task  func(data map[string]any) error
+	Task  func(args map[string]any) error
 	Tasks map[string][]Task
 )
 
