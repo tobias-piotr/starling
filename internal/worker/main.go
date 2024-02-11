@@ -8,7 +8,7 @@ import (
 )
 
 type (
-	Task  func() error
+	Task  func(args map[string]any) error
 	Tasks map[string][]Task
 )
 
@@ -56,7 +56,7 @@ func (w Worker) Run() error {
 		}
 
 		// Execute
-		errs := w.execute(typStr)
+		errs := w.executeTasks(typStr, event)
 		var err error
 		if len(errs) == 0 {
 			err = w.confirm(event)
@@ -73,16 +73,16 @@ func (w Worker) Run() error {
 
 // TODO: Check panics
 // TODO: Handle retry
-// TODO: Task need to take payload
-func (w Worker) execute(event string) []error {
-	tasks, ok := w.tasks[event]
+// executeTasks executes all tasks for the given event type
+func (w Worker) executeTasks(eventType string, eventData map[string]any) []error {
+	tasks, ok := w.tasks[eventType]
 	if !ok {
 		return nil
 	}
 
 	var errs []error
 	for _, task := range tasks {
-		if err := task(); err != nil {
+		if err := task(eventData); err != nil {
 			errs = append(errs, err)
 		}
 	}

@@ -1,6 +1,8 @@
 package trips
 
 import (
+	"log/slog"
+
 	"starling/internal/events"
 )
 
@@ -15,6 +17,8 @@ func NewTripService(tripRepository TripRepository, eventBus events.EventBus) *Tr
 }
 
 func (s *TripService) CreateTrip(data *TripData) (*Trip, error) {
+	slog.Info("Creating a new trip", "data", data)
+
 	// Create trip
 	trip, err := s.tripRepository.Create(data)
 	if err != nil {

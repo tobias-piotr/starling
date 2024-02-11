@@ -37,7 +37,7 @@ Set up the `.env` file:
 DATABASE_DSN="host=postgres port=5432 user=postgres dbname=starling password=postgres sslmode=disable"
 REDIS_ADDR=redis:6379
 REDIS_STREAM=trips
-REDIS_FAILURE_STREAM=trips-starling-failures
+REDIS_FAILURE_STREAM=starling-trips-failures
 REDIS_CGROUP=starling
 REDIS_CNAME=starling
 ```

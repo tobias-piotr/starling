@@ -42,7 +42,7 @@ var workerCmd = &cobra.Command{
 		)
 
 		w := worker.NewWorker(bus)
-		w.AddTask(trips.TripCreated{}.String(), func() error {
+		w.AddTask(trips.TripCreated{}.String(), func(_ map[string]any) error {
 			slog.Info("Trip created")
 			return nil
 		})
