@@ -32,6 +32,7 @@ func (w Worker) AddTask(event string, task Task) {
 func (w Worker) Run() error {
 	listener := make(chan map[string]any)
 
+	// TODO: Make it possible to stop
 	go w.eventBus.Read(listener)
 
 	for event := range listener {
