@@ -39,13 +39,21 @@ func (r *TripRepository) Create(data *trips.TripData) (*trips.Trip, error) {
 	return &trip, nil
 }
 
-func (r *TripRepository) GetAll() ([]*trips.Trip, error) {
+func (r *TripRepository) GetAll(page int, perPage int) ([]*trips.Trip, error) {
 	query := `
 	SELECT id, created_at, status, name, destination, origin, date_from, date_to, budget, requirements
-	FROM trips;
+	FROM trips
+	ORDER BY created_at DESC
+	LIMIT $1
+	OFFSET $2;
 	`
+	offset := 0
+	if page > 0 && offset > 0 {
+		offset = (page - 1) * perPage
+	}
+
 	var trips []*trips.Trip
-	err := r.db.Select(&trips, query)
+	err := r.db.Select(&trips, query, perPage, offset)
 	if err != nil {
 		return nil, err
 	}

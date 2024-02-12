@@ -28,7 +28,12 @@ func (t *TripsAPIHandler) CreateTrip(c echo.Context) error {
 }
 
 func (t *TripsAPIHandler) GetTrips(c echo.Context) error {
-	trips, err := t.tripService.GetTrips()
+	page, perPage, err := getPagination(c)
+	if err != nil {
+		return err
+	}
+
+	trips, err := t.tripService.GetTrips(page, perPage)
 	if err != nil {
 		return err
 	}
