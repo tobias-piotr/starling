@@ -3,6 +3,7 @@ package trips
 import (
 	"time"
 
+	"github.com/cohesivestack/valgo"
 	"github.com/google/uuid"
 )
 
@@ -20,13 +21,27 @@ type Trip struct {
 }
 
 type TripData struct {
-	Name         string
-	Destination  string
-	Origin       string
-	DateFrom     Date `json:"date_from"`
-	DateTo       Date `json:"date_to"`
-	Budget       int64
-	Requirements string
+	Name         string `json:"name"`
+	Destination  string `json:"destination"`
+	Origin       string `json:"origin"`
+	DateFrom     Date   `json:"date_from"`
+	DateTo       Date   `json:"date_to"`
+	Budget       int64  `json:"budget"`
+	Requirements string `json:"requirements"`
+}
+
+func (d TripData) Validate() error {
+	v := valgo.
+		Is(valgo.String(d.Name, "name").Not().Blank()).
+		Is(valgo.String(d.Destination, "destination").Not().Blank()).
+		Is(valgo.String(d.Origin, "origin").Not().Blank()).
+		Is(valgo.Int64(d.Budget, "budget").GreaterThan(0))
+
+	if d.DateFrom.After(d.DateTo.Time) {
+		v.AddErrorMessage("date_from", "Date from should be before date to")
+	}
+
+	return v.Error()
 }
 
 type TripResult struct {

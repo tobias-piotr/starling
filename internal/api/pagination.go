@@ -7,7 +7,7 @@ import (
 )
 
 // getPagination is a helper function to get the pagination parameters from the request
-func getPagination(c echo.Context) (int, int, error) {
+func GetPagination(c echo.Context) (int, int, error) {
 	page := c.QueryParam("page")
 	if page == "" {
 		page = "1"
