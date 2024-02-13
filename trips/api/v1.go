@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	"starling/internal/api"
 	"starling/trips"
 
 	"github.com/labstack/echo/v4"
@@ -13,10 +14,12 @@ type TripsAPIHandler struct {
 }
 
 func (t *TripsAPIHandler) CreateTrip(c echo.Context) error {
-	// TODO: Validate dates etc.
 	data := new(trips.TripData)
 	if err := c.Bind(data); err != nil {
 		return err
+	}
+	if err := data.Validate(); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	trip, err := t.tripService.CreateTrip(data)
@@ -28,7 +31,7 @@ func (t *TripsAPIHandler) CreateTrip(c echo.Context) error {
 }
 
 func (t *TripsAPIHandler) GetTrips(c echo.Context) error {
-	page, perPage, err := getPagination(c)
+	page, perPage, err := api.GetPagination(c)
 	if err != nil {
 		return err
 	}
