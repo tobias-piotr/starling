@@ -31,6 +31,10 @@ func (s *TripService) CreateTrip(data *TripData) (*Trip, error) {
 	return trip, nil
 }
 
-func (s *TripService) GetTrips(page int, perPage int) ([]*Trip, error) {
+func (s *TripService) GetTrips(page int, perPage int) ([]*TripOverview, error) {
 	return s.tripRepository.GetAll(page, perPage)
+}
+
+func (s *TripService) GetTrip(id string) (*Trip, error) {
+	return s.tripRepository.Get(id)
 }

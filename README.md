@@ -29,6 +29,11 @@ Extra:
 
 - Retry steps
 
+Next:
+
+- Tests
+- AI logic
+
 ## Installation
 
 Set up the `.env` file:

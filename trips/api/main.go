@@ -16,7 +16,6 @@ func NewTripsAPIHandler(db *sqlx.DB, redisClient *redis.Client) *TripsAPIHandler
 	tripRepo := database.NewTripRepository(db)
 	eventBus := events.NewRedisEventBus(
 		redisClient,
-		// For publisher, only stream is needed
 		&events.RedisBusArgs{Stream: os.Getenv("REDIS_STREAM")},
 	)
 	tripService := trips.NewTripService(tripRepo, eventBus)
@@ -24,9 +23,10 @@ func NewTripsAPIHandler(db *sqlx.DB, redisClient *redis.Client) *TripsAPIHandler
 }
 
 func Register(g *echo.Group, db *sqlx.DB, redisClient *redis.Client) {
-	v1 := g.Group("/api/trips/v1")
+	v1 := g.Group("/api/v1/trips")
 
 	h := NewTripsAPIHandler(db, redisClient)
-	v1.POST("/", h.CreateTrip)
-	v1.GET("/", h.GetTrips)
+	v1.POST("", h.CreateTrip)
+	v1.GET("", h.GetTrips)
+	v1.GET("/:id", h.GetTrip)
 }

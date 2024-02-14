@@ -1,6 +1,9 @@
 package database
 
 import (
+	"database/sql"
+	"errors"
+
 	"starling/trips"
 
 	"github.com/jmoiron/sqlx"
@@ -39,9 +42,9 @@ func (r *TripRepository) Create(data *trips.TripData) (*trips.Trip, error) {
 	return &trip, nil
 }
 
-func (r *TripRepository) GetAll(page int, perPage int) ([]*trips.Trip, error) {
+func (r *TripRepository) GetAll(page int, perPage int) ([]*trips.TripOverview, error) {
 	query := `
-	SELECT id, created_at, status, name, destination, origin, date_from, date_to, budget, requirements
+	SELECT id, created_at, status, name
 	FROM trips
 	ORDER BY created_at DESC
 	LIMIT $1
@@ -52,11 +55,29 @@ func (r *TripRepository) GetAll(page int, perPage int) ([]*trips.Trip, error) {
 		offset = (page - 1) * perPage
 	}
 
-	var trips []*trips.Trip
+	var trips []*trips.TripOverview
 	err := r.db.Select(&trips, query, perPage, offset)
 	if err != nil {
 		return nil, err
 	}
 
 	return trips, nil
+}
+
+func (r *TripRepository) Get(id string) (*trips.Trip, error) {
+	query := `
+	SELECT id, created_at, status, name, destination, origin, date_from, date_to, budget, requirements
+	FROM trips
+	WHERE id = $1;
+	`
+	var trip trips.Trip
+	err := r.db.QueryRowx(query, id).StructScan(&trip)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &trip, nil
 }

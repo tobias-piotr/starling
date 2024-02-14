@@ -43,3 +43,18 @@ func (t *TripsAPIHandler) GetTrips(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, trips)
 }
+
+func (t *TripsAPIHandler) GetTrip(c echo.Context) error {
+	id := c.Param("id")
+
+	trip, err := t.tripService.GetTrip(id)
+	if err != nil {
+		return err
+	}
+
+	if trip == nil {
+		return c.JSON(http.StatusNotFound, nil)
+	}
+
+	return c.JSON(http.StatusOK, trip)
+}

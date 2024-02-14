@@ -57,7 +57,7 @@ func createServer() *echo.Echo {
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
 	e.Use(middleware.RequestID())
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{Timeout: time.Second * 60}))
-	e.Pre(middleware.AddTrailingSlash())
+	e.Pre(middleware.RemoveTrailingSlash())
 
 	return e
 }

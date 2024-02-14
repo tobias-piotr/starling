@@ -20,6 +20,13 @@ type Trip struct {
 	Requirements string     `json:"requirements"`
 }
 
+type TripOverview struct {
+	ID        uuid.UUID  `json:"id"`
+	CreatedAt time.Time  `json:"created_at" db:"created_at"`
+	Status    TripStatus `json:"status"`
+	Name      string     `json:"name"`
+}
+
 type TripData struct {
 	Name         string `json:"name"`
 	Destination  string `json:"destination"`
