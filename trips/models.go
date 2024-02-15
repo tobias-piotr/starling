@@ -45,7 +45,7 @@ func (d TripData) Validate() error {
 		Is(valgo.Int64(d.Budget, "budget").GreaterThan(0))
 
 	if d.DateFrom.After(d.DateTo.Time) {
-		v.AddErrorMessage("date_from", "Date from should be before date to")
+		v.AddErrorMessage("date_from", "Date from must be before date to")
 	}
 
 	return v.Error()
