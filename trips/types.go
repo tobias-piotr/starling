@@ -30,6 +30,20 @@ func (s TripStatus) MarshalJSON() ([]byte, error) {
 	return []byte(status), nil
 }
 
+// UnmarshalJSON is a custom marshaller to convert a JSON string to TripStatus
+func (s *TripStatus) UnmarshalJSON(b []byte) error {
+	v := strings.Trim(string(b), "\"")
+
+	for i, status := range s.Values() {
+		if status == v {
+			*s = TripStatus(i)
+			return nil
+		}
+	}
+
+	return fmt.Errorf("unmarshal status: %v", v)
+}
+
 // Scan is used to convert a value from the database to a TripStatus
 func (s *TripStatus) Scan(value any) error {
 	v, ok := value.([]byte)

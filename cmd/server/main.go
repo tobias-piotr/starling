@@ -17,7 +17,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/redis/go-redis/v9"
 	"github.com/spf13/cobra"
 )
 
@@ -39,13 +38,13 @@ func getDB() *sqlx.DB {
 	return db
 }
 
-func getRedis() *redis.Client {
+func getRedisPublisher() *events.RedisEventBus {
 	client, err := events.NewRedisClient(os.Getenv("REDIS_ADDR"))
 	if err != nil {
 		slog.Error("Failed to connect to redis", "error", err)
 		os.Exit(1)
 	}
-	return client
+	return events.NewRedisEventBus(client, &events.RedisBusArgs{Stream: os.Getenv("REDIS_STREAM")})
 }
 
 func createServer() *echo.Echo {
@@ -67,14 +66,14 @@ var serverCmd = &cobra.Command{
 	Short: "Starts server",
 	Run: func(_ *cobra.Command, _ []string) {
 		db := getDB()
-		redisClient := getRedis()
+		redisPublisher := getRedisPublisher()
 		e := createServer()
 
 		router := e.Group(prefix)
 		router.GET("/health", func(c echo.Context) error {
 			return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 		})
-		trips_api.Register(router, db, redisClient)
+		trips_api.Register(router, db, redisPublisher)
 
 		e.Start(":" + port)
 	},
