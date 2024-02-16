@@ -45,6 +45,7 @@ REDIS_STREAM=trips
 REDIS_FAILURE_STREAM=starling-trips-failures
 REDIS_CGROUP=starling
 REDIS_CNAME=starling
+OPENAI_KEY=
 ```
 
 Build the Docker images:
