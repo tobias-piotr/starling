@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"starling/cmd"
+	"starling/internal/ai"
 	"starling/internal/events"
 	"starling/internal/worker"
 	"starling/trips"
@@ -40,6 +41,8 @@ var workerCmd = &cobra.Command{
 				ConsumerName:  os.Getenv("REDIS_CNAME"),
 			},
 		)
+		// TODO: Pass it to the tasks
+		_ = ai.NewOpenAIClient(os.Getenv("OPENAI_KEY"))
 
 		w := worker.NewWorker(bus)
 		w.AddTask(trips.TripCreated{}.String(), func(_ map[string]any) error {
