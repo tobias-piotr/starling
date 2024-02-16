@@ -2,6 +2,7 @@ package ai
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/sashabaranov/go-openai"
 )
@@ -28,7 +29,7 @@ func (c *OpenAIClient) Send(prompt string) (string, error) {
 		},
 	)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("send prompt: %w", err)
 	}
 	return resp.Choices[0].Message.Content, nil
 }
