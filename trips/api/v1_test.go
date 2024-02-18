@@ -51,6 +51,7 @@ func (s *TripsAPISuite) TestCreateTrip() {
 	}
 }
 
+// TODO: Fix this and add tests for requesting trip
 func (s *TripsAPISuite) TestCreateTripValidation() {
 	data := `{
 		"name": "",

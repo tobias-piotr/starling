@@ -22,4 +22,5 @@ func Register(g *echo.Group, db *sqlx.DB, redisPublisher *events.RedisEventBus) 
 	v1.POST("", h.CreateTrip)
 	v1.GET("", h.GetTrips)
 	v1.GET("/:id", h.GetTrip)
+	v1.POST("/:id/request", h.RequestTrip)
 }

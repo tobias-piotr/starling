@@ -26,7 +26,7 @@ type RedisBusArgs struct {
 	ConsumerName  string
 }
 
-// RedisEventBus is an implementation of EventBus that uses Redis as the message broker
+// RedisEventBus is an implementation of EventBus that uses Redis as the message broker.
 type RedisEventBus struct {
 	client        *redis.Client
 	stream        string
@@ -39,7 +39,7 @@ func NewRedisEventBus(client *redis.Client, args *RedisBusArgs) *RedisEventBus {
 	return &RedisEventBus{client, args.Stream, args.FailureStream, args.ConsumerGroup, args.ConsumerName}
 }
 
-// Publish publishes the event to the stream
+// Publish publishes the event to the stream.
 func (b *RedisEventBus) Publish(event Event) error {
 	slog.Info("Publishing event", "event", event.String())
 
@@ -54,7 +54,7 @@ func (b *RedisEventBus) Publish(event Event) error {
 	return nil
 }
 
-// Read reads events from the stream and sends them to the listener
+// Read reads events from the stream and sends them to the listener.
 func (b *RedisEventBus) Read(listener chan map[string]any) error {
 	// Create the consumer group
 	// Its ok if it already exists
@@ -86,7 +86,7 @@ func (b *RedisEventBus) Read(listener chan map[string]any) error {
 	}
 }
 
-// Confirm acknowledges the event
+// Confirm acknowledges the event.
 func (b *RedisEventBus) Confirm(id string) error {
 	err := b.client.XAck(context.Background(), b.stream, b.consumerGroup, id).Err()
 	if err != nil {
@@ -95,7 +95,7 @@ func (b *RedisEventBus) Confirm(id string) error {
 	return nil
 }
 
-// BackOff moves the event to the failure stream and acknowledges it from the main stream
+// BackOff moves the event to the failure stream and acknowledges it from the main stream.
 func (b *RedisEventBus) BackOff(event map[string]any) error {
 	// Add the event to the failure stream
 	err := b.client.XAdd(context.Background(), &redis.XAddArgs{
