@@ -2,7 +2,7 @@ package trips
 
 import "github.com/google/uuid"
 
-// TripCreated is an event that is published when a trip is created
+// TripCreated is an event that is published when a trip is created.
 type TripCreated struct {
 	tripID uuid.UUID
 }
@@ -15,7 +15,7 @@ func (e TripCreated) Payload() map[string]any {
 	return map[string]any{"type": e.String(), "trip_id": e.tripID.String()}
 }
 
-// TripRequested is an event that is published when a trip is requested
+// TripRequested is an event that is published when a trip is requested.
 type TripRequested struct {
 	tripID uuid.UUID
 }

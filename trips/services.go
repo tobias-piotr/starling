@@ -1,12 +1,14 @@
 package trips
 
 import (
+	"fmt"
 	"log/slog"
 
+	"starling/internal/domain"
 	"starling/internal/events"
 )
 
-// TripService is an orchestrator for the trip domain
+// TripService is an orchestrator for the trip domain.
 type TripService struct {
 	tripRepository TripRepository
 	eventBus       events.EventBus
@@ -37,4 +39,31 @@ func (s *TripService) GetTrips(page int, perPage int) ([]*TripOverview, error) {
 
 func (s *TripService) GetTrip(id string) (*Trip, error) {
 	return s.tripRepository.Get(id)
+}
+
+func (s *TripService) RequestTrip(id string) error {
+	trip, err := s.tripRepository.Get(id)
+	if err != nil {
+		return err
+	}
+	if trip == nil {
+		return &domain.NotFoundErr{Msg: "Trip not found"}
+	}
+
+	// TODO: Check if trip has a proper status
+	err = trip.ValidateRequest()
+	if err != nil {
+		return &domain.ValidationErr{Err: err}
+	}
+
+	// TODO: Update status
+	err = s.tripRepository.Update(id, map[string]any{"status": RequestedStatus.String()})
+	if err != nil {
+		return err
+	}
+
+	// TODO: Publish event
+	// go s.eventBus.Publish(TripRequested{tripID: trip.ID})
+
+	return nil
 }

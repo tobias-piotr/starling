@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// getPagination is a helper function to get the pagination parameters from the request
+// GetPagination is a helper function to get the pagination parameters from the request.
 func GetPagination(c echo.Context) (int, int, error) {
 	page := c.QueryParam("page")
 	if page == "" {

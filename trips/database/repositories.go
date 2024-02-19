@@ -3,7 +3,9 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
+	"starling/internal/database"
 	"starling/trips"
 
 	"github.com/jmoiron/sqlx"
@@ -23,6 +25,7 @@ func (r *TripRepository) Create(data *trips.TripData) (*trips.Trip, error) {
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	RETURNING id, created_at, status, name, destination, origin, date_from, date_to, budget, requirements;
 	`
+
 	var trip trips.Trip
 	err := r.db.QueryRowx(
 		query,
@@ -30,8 +33,8 @@ func (r *TripRepository) Create(data *trips.TripData) (*trips.Trip, error) {
 		data.Name,
 		data.Destination,
 		data.Origin,
-		data.DateFrom.Format("2006-01-02"),
-		data.DateTo.Format("2006-01-02"),
+		data.DateFrom.NullableString(),
+		data.DateTo.NullableString(),
 		data.Budget,
 		data.Requirements,
 	).StructScan(&trip)
@@ -80,4 +83,22 @@ func (r *TripRepository) Get(id string) (*trips.Trip, error) {
 	}
 
 	return &trip, nil
+}
+
+func (r *TripRepository) Update(id string, data map[string]any) error {
+	query := `
+	UPDATE trips
+	SET %s
+	WHERE id = :id;
+	`
+	args := database.ConvertMapToArgsStr(data, ", ")
+	query = fmt.Sprintf(query, args)
+	data["id"] = id
+
+	_, err := r.db.NamedExec(query, data)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

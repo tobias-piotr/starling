@@ -20,6 +20,20 @@ type Trip struct {
 	Requirements string     `json:"requirements"`
 }
 
+// ValidateRequest validates the state of the trip before it can be requested.
+// Validation skips the fields that are enforced elsewhere, like id or name.
+func (t *Trip) ValidateRequest() error {
+	v := valgo.
+		Is(valgo.String(t.Destination, "destination").Not().Blank()).
+		Is(valgo.String(t.Origin, "origin").Not().Blank()).
+		Is(valgo.Int64(t.Budget, "budget").GreaterThan(0)).
+		Is(valgo.Any(t.DateFrom.NullableString(), "date_from").Not().Nil()).
+		Is(valgo.Any(t.DateTo.NullableString(), "date_to").Not().Nil()).
+		Is(valgo.String(t.Requirements, "requirements").Not().Blank())
+
+	return v.Error()
+}
+
 type TripOverview struct {
 	ID        uuid.UUID  `json:"id"`
 	CreatedAt time.Time  `json:"created_at" db:"created_at"`
@@ -38,11 +52,7 @@ type TripData struct {
 }
 
 func (d TripData) Validate() error {
-	v := valgo.
-		Is(valgo.String(d.Name, "name").Not().Blank()).
-		Is(valgo.String(d.Destination, "destination").Not().Blank()).
-		Is(valgo.String(d.Origin, "origin").Not().Blank()).
-		Is(valgo.Int64(d.Budget, "budget").GreaterThan(0))
+	v := valgo.Is(valgo.String(d.Name, "name").Not().Blank())
 
 	if d.DateFrom.After(d.DateTo.Time) {
 		v.AddErrorMessage("date_from", "Date from must be before date to")
