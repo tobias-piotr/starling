@@ -52,7 +52,6 @@ func (s *TripService) RequestTrip(id string) error {
 
 	// TODO: Check if trip has a proper status
 	err = trip.ValidateRequest()
-	fmt.Println("Validating trip", err)
 	if err != nil {
 		return &domain.ValidationErr{Err: err}
 	}
