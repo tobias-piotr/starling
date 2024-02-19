@@ -76,6 +76,10 @@ func (d Date) NullableString() *string {
 
 // UnmarshalJSON is a custom marshaller to convert a JSON string to a Date.
 func (d *Date) UnmarshalJSON(b []byte) error {
+	if string(b) == "null" {
+		return nil
+	}
+
 	s := strings.Trim(string(b), "\"")
 	date, err := time.Parse("2006-01-02", s)
 	if err != nil {

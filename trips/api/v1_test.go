@@ -51,16 +51,8 @@ func (s *TripsAPISuite) TestCreateTrip() {
 	}
 }
 
-// TODO: Fix this and add tests for requesting trip
 func (s *TripsAPISuite) TestCreateTripValidation() {
-	data := `{
-		"name": "",
-		"destination": "",
-		"origin": "",
-		"date_from": "2021-01-02",
-		"date_to": "2021-01-01",
-		"budget": -1
-	}`
+	data := `{"name": ""}`
 
 	rec, c := tests.MakeRequest(http.MethodPost, "/api/v1/trips", "", data)
 	h := NewTripsAPIHandler(s.DB, s.EventPublisher)
@@ -71,11 +63,6 @@ func (s *TripsAPISuite) TestCreateTripValidation() {
 		err := json.Unmarshal(rec.Body.Bytes(), &errs)
 		s.NoError(err)
 		s.Equal([]string{"Name can't be blank"}, errs["name"])
-		s.Equal([]string{"Destination can't be blank"}, errs["destination"])
-		s.Equal([]string{"Origin can't be blank"}, errs["origin"])
-		s.Equal([]string{"Date from must be before date to"}, errs["date_from"])
-		s.Equal([]string{`Budget must be greater than "0"`}, errs["budget"])
-
 	}
 }
 
@@ -138,5 +125,69 @@ func (s *TripsAPISuite) TestGetTrip() {
 		err := json.Unmarshal(rec.Body.Bytes(), &trip)
 		s.NoError(err)
 		s.NotEmpty(trip.ID)
+	}
+}
+
+func (s *TripsAPISuite) TestRequestTrip() {
+	data := `{
+		"name": "Test Trip",
+		"destination": "Norway",
+		"origin": "Wroclaw",
+		"date_from": "2021-01-01",
+		"date_to": "2021-01-09",
+		"budget": 1000,
+		"requirements": "Cannot be uncomfy."
+	}`
+
+	h := NewTripsAPIHandler(s.DB, s.EventPublisher)
+
+	// Create a trip
+	rec, c := tests.MakeRequest(http.MethodPost, "/api/v1/trips", "", data)
+	s.NoError(h.CreateTrip(c))
+	createdTrip := trips.Trip{}
+	err := json.Unmarshal(rec.Body.Bytes(), &createdTrip)
+	s.NoError(err)
+
+	// Request the trip
+	url := fmt.Sprintf("/api/v1/trips/%v/request", createdTrip.ID.String())
+	rec, c = tests.MakeRequest(http.MethodPost, url, createdTrip.ID.String(), "")
+	if s.NoError(h.RequestTrip(c)) {
+		s.Equal(http.StatusNoContent, rec.Code)
+		// Check if status is updated
+		rec, c = tests.MakeRequest(http.MethodGet, "/api/v1/trips", createdTrip.ID.String(), "")
+		s.NoError(h.GetTrip(c))
+		trip := trips.Trip{}
+		err := json.Unmarshal(rec.Body.Bytes(), &trip)
+		s.NoError(err)
+		s.Equal(trips.RequestedStatus, trip.Status)
+	}
+}
+
+func (s *TripsAPISuite) TestRequestTripValidation() {
+	data := `{"name": "Test Trip"}`
+
+	h := NewTripsAPIHandler(s.DB, s.EventPublisher)
+
+	// Create a trip
+	rec, c := tests.MakeRequest(http.MethodPost, "/api/v1/trips", "", data)
+	s.NoError(h.CreateTrip(c))
+	createdTrip := trips.Trip{}
+	err := json.Unmarshal(rec.Body.Bytes(), &createdTrip)
+	s.NoError(err)
+
+	// Request the trip
+	url := fmt.Sprintf("/api/v1/trips/%v/request", createdTrip.ID.String())
+	rec, c = tests.MakeRequest(http.MethodPost, url, createdTrip.ID.String(), "")
+	if s.NoError(h.RequestTrip(c)) {
+		s.Equal(http.StatusBadRequest, rec.Code)
+		errs := map[string][]string{}
+		err := json.Unmarshal(rec.Body.Bytes(), &errs)
+		s.NoError(err)
+		s.Equal([]string{"Destination can't be blank"}, errs["destination"])
+		s.Equal([]string{"Origin can't be blank"}, errs["origin"])
+		s.Equal([]string{"Date from must not be nil"}, errs["date_from"])
+		s.Equal([]string{"Date to must not be nil"}, errs["date_to"])
+		s.Equal([]string{`Budget must be greater than "0"`}, errs["budget"])
+		s.Equal([]string{"Requirements can't be blank"}, errs["requirements"])
 	}
 }

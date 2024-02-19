@@ -27,8 +27,8 @@ func (t *Trip) ValidateRequest() error {
 		Is(valgo.String(t.Destination, "destination").Not().Blank()).
 		Is(valgo.String(t.Origin, "origin").Not().Blank()).
 		Is(valgo.Int64(t.Budget, "budget").GreaterThan(0)).
-		Is(valgo.String(t.DateFrom.String(), "date_from").Not().Blank()).
-		Is(valgo.String(t.DateTo.String(), "date_to").Not().Blank()).
+		Is(valgo.Any(t.DateFrom.NullableString(), "date_from").Not().Nil()).
+		Is(valgo.Any(t.DateTo.NullableString(), "date_to").Not().Nil()).
 		Is(valgo.String(t.Requirements, "requirements").Not().Blank())
 
 	return v.Error()
