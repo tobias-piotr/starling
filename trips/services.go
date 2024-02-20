@@ -1,7 +1,6 @@
 package trips
 
 import (
-	"fmt"
 	"log/slog"
 
 	"starling/internal/domain"
@@ -50,13 +49,11 @@ func (s *TripService) RequestTrip(id string) error {
 		return &domain.NotFoundErr{Msg: "Trip not found"}
 	}
 
-	// TODO: Check if trip has a proper status
 	err = trip.ValidateRequest()
 	if err != nil {
 		return &domain.ValidationErr{Err: err}
 	}
 
-	// TODO: Update status
 	err = s.tripRepository.Update(id, map[string]any{"status": RequestedStatus.String()})
 	if err != nil {
 		return err
