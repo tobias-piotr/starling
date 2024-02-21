@@ -23,15 +23,18 @@ type Trip struct {
 // ValidateRequest validates the state of the trip before it can be requested.
 // Validation skips the fields that are enforced elsewhere, like id or name.
 func (t *Trip) ValidateRequest() error {
-	v := valgo.
+	if err := valgo.Is(valgo.Int64(t.Status, "status").EqualTo(DraftStatus)).Error(); err != nil {
+		return err
+	}
+
+	return valgo.
 		Is(valgo.String(t.Destination, "destination").Not().Blank()).
 		Is(valgo.String(t.Origin, "origin").Not().Blank()).
 		Is(valgo.Int64(t.Budget, "budget").GreaterThan(0)).
 		Is(valgo.Any(t.DateFrom.NullableString(), "date_from").Not().Nil()).
 		Is(valgo.Any(t.DateTo.NullableString(), "date_to").Not().Nil()).
-		Is(valgo.String(t.Requirements, "requirements").Not().Blank())
-
-	return v.Error()
+		Is(valgo.String(t.Requirements, "requirements").Not().Blank()).
+		Error()
 }
 
 type TripOverview struct {
