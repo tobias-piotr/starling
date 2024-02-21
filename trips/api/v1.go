@@ -69,3 +69,14 @@ func (t *TripsAPIHandler) RequestTrip(c echo.Context) error {
 
 	return c.NoContent(http.StatusNoContent)
 }
+
+// func (t *TripsAPIHandler) RestartTripRequest(c echo.Context) error {
+// 	id := c.Param("id")
+
+// 	err := t.tripService.RestartTripRequest(id)
+// 	if err != nil {
+// 		return api.RespondWithError(c, err)
+// 	}
+
+// 	return c.NoContent(http.StatusNoContent)
+// }

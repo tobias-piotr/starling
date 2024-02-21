@@ -23,6 +23,8 @@ services:
   worker:
     <<: *default-app
     command: air worker
+    depends_on:
+      - go 
     # If you don't need it
     # profiles:
     #   - donotstart

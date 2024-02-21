@@ -59,8 +59,7 @@ func (s *TripService) RequestTrip(id string) error {
 		return err
 	}
 
-	// TODO: Publish event
-	// go s.eventBus.Publish(TripRequested{tripID: trip.ID})
+	go s.eventBus.Publish(TripRequested{tripID: trip.ID})
 
 	return nil
 }
