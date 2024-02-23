@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"strings"
 	"time"
 
@@ -11,7 +12,15 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func NewLoggingMiddleware() echo.MiddlewareFunc {
+func customErrorHandler(err error, c echo.Context) {
+	if c.Response().Committed {
+		return
+	}
+	c.JSON(http.StatusInternalServerError, map[string]string{"message": "Internal Server Error"})
+	slog.Error("Internal server error", "error", err)
+}
+
+func newLoggingMiddleware() echo.MiddlewareFunc {
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogStatus:    true,
 		LogURI:       true,

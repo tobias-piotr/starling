@@ -50,7 +50,8 @@ func getRedisPublisher() *events.RedisEventBus {
 func createServer() *echo.Echo {
 	e := echo.New()
 
-	e.Use(NewLoggingMiddleware())
+	e.HTTPErrorHandler = customErrorHandler
+	e.Use(newLoggingMiddleware())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))

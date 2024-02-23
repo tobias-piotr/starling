@@ -22,10 +22,35 @@ Destination: %s
 Date: %s to %s
 Budget: %d
 Requirements: %s
+Summary should be a general, few sentences long description of the destination.
+Talk only about the place itself, not the trip, weather, prices or attractions.
 `
 )
 
-func GenerateSummary(client ai.AIClient, trip *Trip) (string, error) {
+// RequestTrip generates an entire trip result for given trip request.
+func RequestTrip(tripsRepository TripRepository, aiClient ai.AIClient, tripID string) error {
+	// TODO: Fetch it with the result
+	trip, err := tripsRepository.Get(tripID)
+	if err != nil {
+		return err
+	}
+
+	// TODO: Check only empty fields and process those
+
+	summary, err := generateSummary(aiClient, trip)
+	if err != nil {
+		return err
+	}
+
+	// TODO: Save the field into the result
+	fmt.Println(summary)
+
+	// TODO: Set the status to completed/failed
+
+	return nil
+}
+
+func generateSummary(aiClient ai.AIClient, trip *Trip) (string, error) {
 	prompt := fmt.Sprintf(
 		basePrompt+summaryPrompt,
 		trip.Origin,
@@ -35,5 +60,5 @@ func GenerateSummary(client ai.AIClient, trip *Trip) (string, error) {
 		trip.Budget,
 		trip.Requirements,
 	)
-	return client.Send(prompt)
+	return aiClient.Send(prompt)
 }
