@@ -2,8 +2,11 @@ package trips
 
 import (
 	"fmt"
+	"log/slog"
+	"sync"
 
 	"starling/internal/ai"
+	"starling/internal/domain"
 )
 
 const (
@@ -29,23 +32,83 @@ Talk only about the place itself, not the trip, weather, prices or attractions.
 
 // RequestTrip generates an entire trip result for given trip request.
 func RequestTrip(tripsRepository TripRepository, aiClient ai.AIClient, tripID string) error {
-	// TODO: Fetch it with the result
+	// Get the trip
 	trip, err := tripsRepository.Get(tripID)
 	if err != nil {
-		return err
+		return fmt.Errorf("get trip: %w", err)
 	}
 
-	// TODO: Check only empty fields and process those
+	// Make sure the trip has a result
+	if trip.Result == nil {
+		res, err := tripsRepository.AddResult(tripID)
+		if err != nil {
+			return fmt.Errorf("add result: %w", err)
+		}
+		trip.Result = res
+	}
 
-	summary, err := generateSummary(aiClient, trip)
+	var wg sync.WaitGroup
+	errs := make(chan error)
+
+	if trip.Result.Summary == "" {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			slog.Info("Generating summary for trip", "trip_id", trip.ID)
+
+			summary, err := generateSummary(aiClient, trip)
+			if err != nil {
+				errs <- fmt.Errorf("generate summary: %w", err)
+				return
+			}
+
+			if err = tripsRepository.UpdateResult(
+				trip.Result.ID.String(),
+				map[string]any{"summary": summary},
+			); err != nil {
+				errs <- fmt.Errorf("update result summary: %w", err)
+				return
+			}
+		}()
+	}
+
+	if trip.Result.Attractions == "" {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			errs <- fmt.Errorf("generate attractions: not implemented")
+		}()
+	}
+
+	// Wait for all goroutines to finish and close the errs channel
+	go func() {
+		wg.Wait()
+		close(errs)
+	}()
+
+	// Collect all errors
+	cerr := &domain.CompositeErr{}
+	for err := range errs {
+		cerr.AddError(err)
+	}
+	if !cerr.IsEmpty() {
+		err = tripsRepository.Update(
+			tripID,
+			map[string]any{"status": FailedStatus.String()},
+		)
+		if err != nil {
+			return fmt.Errorf("update trip status: %w", err)
+		}
+		return cerr
+	}
+
+	err = tripsRepository.Update(
+		tripID,
+		map[string]any{"status": CompletedStatus.String()},
+	)
 	if err != nil {
-		return err
+		return fmt.Errorf("update trip status: %w", err)
 	}
-
-	// TODO: Save the field into the result
-	fmt.Println(summary)
-
-	// TODO: Set the status to completed/failed
 
 	return nil
 }

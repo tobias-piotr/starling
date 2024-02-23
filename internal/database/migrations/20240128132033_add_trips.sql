@@ -18,4 +18,5 @@ CREATE TABLE trips (
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE trips;
+DROP TYPE trip_status;
 -- +goose StatementEnd
