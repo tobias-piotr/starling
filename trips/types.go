@@ -114,17 +114,3 @@ func (s *Date) Scan(value any) error {
 	*s = Date{v}
 	return nil
 }
-
-// Timestamp is a custom Time type that gets created from timestamps.
-type Timestamp struct{ time.Time }
-
-// UnmarshalJSON is a custom unmarshaller that converts timestaps (e.g. from the database) to a Timestamp.
-func (ts *Timestamp) UnmarshalJSON(data []byte) error {
-	dt, err := time.Parse("2006-01-02T15:04:05", strings.Trim(string(data), "\""))
-	if err != nil {
-		return err
-	}
-
-	ts.Time = dt
-	return nil
-}

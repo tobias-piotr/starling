@@ -82,7 +82,7 @@ func (r *TripRepository) Get(id string) (*trips.Trip, error) {
         )
         ELSE NULL END as result
 	FROM trips t
-    LEFT JOIN trip_results tr ON t.id = tr.trip_id
+	LEFT JOIN trip_results tr ON t.id = tr.trip_id
 	WHERE t.id = $1;
 	`
 	var trip trips.Trip

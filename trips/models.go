@@ -24,9 +24,9 @@ type Trip struct {
 // ValidateRequest validates the state of the trip before it can be requested.
 // Validation skips the fields that are enforced elsewhere, like id or name.
 func (t *Trip) ValidateRequest() error {
-	// if err := valgo.Is(valgo.Int64(t.Status, "status").EqualTo(DraftStatus)).Error(); err != nil {
-	// 	return err
-	// }
+	if err := valgo.Is(valgo.Int64(t.Status, "status").EqualTo(DraftStatus)).Error(); err != nil {
+		return err
+	}
 
 	return valgo.
 		Is(valgo.String(t.Destination, "destination").Not().Blank()).
