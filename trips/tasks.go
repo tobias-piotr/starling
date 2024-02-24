@@ -76,7 +76,15 @@ func RequestTrip(tripsRepository TripRepository, aiClient ai.AIClient, tripID st
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			errs <- fmt.Errorf("generate attractions: not implemented")
+			slog.Info("Generating attractions for trip", "trip_id", trip.ID)
+
+			attractions, err := generateAttractions(aiClient, trip)
+			if err != nil {
+				errs <- fmt.Errorf("generate attractions: %w", err)
+				return
+			}
+
+			fmt.Println(attractions)
 		}()
 	}
 
@@ -124,4 +132,8 @@ func generateSummary(aiClient ai.AIClient, trip *Trip) (string, error) {
 		trip.Requirements,
 	)
 	return aiClient.Send(prompt)
+}
+
+func generateAttractions(aiClient ai.AIClient, trip *Trip) (string, error) {
+	return "", nil
 }

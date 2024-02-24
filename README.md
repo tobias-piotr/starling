@@ -31,8 +31,10 @@ Extra:
 
 Next:
 
-- Tests
-- AI logic
+- Remaining prompts
+- Restart endpoint
+- README
+- Some interface (templ + htmx + tailwind + daisyui)
 
 ## Installation
 
