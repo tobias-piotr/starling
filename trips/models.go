@@ -8,16 +8,17 @@ import (
 )
 
 type Trip struct {
-	ID           uuid.UUID  `json:"id"`
-	CreatedAt    time.Time  `json:"created_at" db:"created_at"`
-	Status       TripStatus `json:"status"`
-	Name         string     `json:"name"`
-	Destination  string     `json:"destination"`
-	Origin       string     `json:"origin"`
-	DateFrom     Date       `json:"date_from" db:"date_from"`
-	DateTo       Date       `json:"date_to" db:"date_to"`
-	Budget       int64      `json:"budget"`
-	Requirements string     `json:"requirements"`
+	ID           uuid.UUID   `json:"id"`
+	CreatedAt    time.Time   `json:"created_at" db:"created_at"`
+	Status       TripStatus  `json:"status"`
+	Name         string      `json:"name"`
+	Destination  string      `json:"destination"`
+	Origin       string      `json:"origin"`
+	DateFrom     Date        `json:"date_from" db:"date_from"`
+	DateTo       Date        `json:"date_to" db:"date_to"`
+	Budget       int64       `json:"budget"`
+	Requirements string      `json:"requirements"`
+	Result       *TripResult `json:"result"`
 }
 
 // ValidateRequest validates the state of the trip before it can be requested.
@@ -65,14 +66,12 @@ func (d TripData) Validate() error {
 }
 
 type TripResult struct {
-	ID          uuid.UUID
-	CreatedAt   time.Time
-	TripID      uuid.UUID
-	Summary     string
-	Attractions string
-	Weather     string
-	Prices      string
-	Luggage     string
-	Documents   string
-	Commuting   string
+	ID          uuid.UUID `json:"id"`
+	Summary     string    `json:"summary"`
+	Attractions string    `json:"attractions"`
+	Weather     string    `json:"weather"`
+	Prices      string    `json:"prices"`
+	Luggage     string    `json:"luggage"`
+	Documents   string    `json:"documents"`
+	Commuting   string    `json:"commuting"`
 }

@@ -62,8 +62,7 @@ func (t *TripsAPIHandler) GetTrip(c echo.Context) error {
 func (t *TripsAPIHandler) RequestTrip(c echo.Context) error {
 	id := c.Param("id")
 
-	err := t.tripService.RequestTrip(id)
-	if err != nil {
+	if err := t.tripService.RequestTrip(id); err != nil {
 		return api.RespondWithError(c, err)
 	}
 

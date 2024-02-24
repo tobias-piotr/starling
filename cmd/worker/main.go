@@ -26,10 +26,6 @@ func getDB() *sqlx.DB {
 		slog.Error("Failed to connect to database", "error", err)
 		os.Exit(1)
 	}
-	if err := database.Migrate(db); err != nil {
-		slog.Error("Failed to migrate database", "error", err)
-		os.Exit(1)
-	}
 	return db
 }
 

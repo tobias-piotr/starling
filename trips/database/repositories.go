@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -27,7 +28,7 @@ func (r *TripRepository) Create(data *trips.TripData) (*trips.Trip, error) {
 	`
 
 	var trip trips.Trip
-	err := r.db.QueryRowx(
+	if err := r.db.QueryRowx(
 		query,
 		trips.DraftStatus.String(),
 		data.Name,
@@ -37,8 +38,7 @@ func (r *TripRepository) Create(data *trips.TripData) (*trips.Trip, error) {
 		data.DateTo.NullableString(),
 		data.Budget,
 		data.Requirements,
-	).StructScan(&trip)
-	if err != nil {
+	).StructScan(&trip); err != nil {
 		return nil, err
 	}
 
@@ -59,8 +59,7 @@ func (r *TripRepository) GetAll(page int, perPage int) ([]*trips.TripOverview, e
 	}
 
 	var trips []*trips.TripOverview
-	err := r.db.Select(&trips, query, perPage, offset)
-	if err != nil {
+	if err := r.db.Select(&trips, query, perPage, offset); err != nil {
 		return nil, err
 	}
 
@@ -69,12 +68,38 @@ func (r *TripRepository) GetAll(page int, perPage int) ([]*trips.TripOverview, e
 
 func (r *TripRepository) Get(id string) (*trips.Trip, error) {
 	query := `
-	SELECT id, created_at, status, name, destination, origin, date_from, date_to, budget, requirements
-	FROM trips
-	WHERE id = $1;
+	SELECT t.id, t.created_at, t.status, t.name, t.destination, t.origin, t.date_from, t.date_to, t.budget, t.requirements,
+        CASE WHEN tr.id IS NOT NULL THEN
+        json_build_object(
+            'id', tr.id,
+            'summary', tr.summary,
+            'attractions', tr.attractions,
+            'weather', tr.weather,
+            'prices', tr.prices,
+            'luggage', tr.luggage,
+            'documents', tr.documents,
+            'commuting', tr.commuting
+        )
+        ELSE NULL END as result
+	FROM trips t
+	LEFT JOIN trip_results tr ON t.id = tr.trip_id
+	WHERE t.id = $1;
 	`
 	var trip trips.Trip
-	err := r.db.QueryRowx(query, id).StructScan(&trip)
+	var result sql.NullString
+	err := r.db.QueryRowx(query, id).Scan(
+		&trip.ID,
+		&trip.CreatedAt,
+		&trip.Status,
+		&trip.Name,
+		&trip.Destination,
+		&trip.Origin,
+		&trip.DateFrom,
+		&trip.DateTo,
+		&trip.Budget,
+		&trip.Requirements,
+		&result,
+	)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}
@@ -82,6 +107,12 @@ func (r *TripRepository) Get(id string) (*trips.Trip, error) {
 		return nil, err
 	}
 
+	// Unmarshal the result
+	if result.String != "" {
+		if err := json.Unmarshal([]byte(result.String), &trip.Result); err != nil {
+			return nil, err
+		}
+	}
 	return &trip, nil
 }
 
@@ -94,6 +125,39 @@ func (r *TripRepository) Update(id string, data map[string]any) error {
 	args := database.ConvertMapToArgsStr(data, ", ")
 	query = fmt.Sprintf(query, args)
 	data["id"] = id
+
+	_, err := r.db.NamedExec(query, data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *TripRepository) AddResult(tripID string) (*trips.TripResult, error) {
+	query := `
+        INSERT INTO trip_results (trip_id)
+        VALUES ($1)
+        RETURNING id, trip_id;
+        `
+
+	var result trips.TripResult
+	if err := r.db.QueryRowx(query, tripID).StructScan(&result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+func (r *TripRepository) UpdateResult(resultID string, data map[string]any) error {
+	query := `
+        UPDATE trip_results
+        SET %s
+        WHERE id = :id;
+        `
+	args := database.ConvertMapToArgsStr(data, ", ")
+	query = fmt.Sprintf(query, args)
+	data["id"] = resultID
 
 	_, err := r.db.NamedExec(query, data)
 	if err != nil {
