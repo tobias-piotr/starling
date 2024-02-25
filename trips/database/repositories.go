@@ -138,7 +138,7 @@ func (r *TripRepository) AddResult(tripID string) (*trips.TripResult, error) {
 	query := `
         INSERT INTO trip_results (trip_id)
         VALUES ($1)
-        RETURNING id, trip_id;
+        RETURNING id;
         `
 
 	var result trips.TripResult

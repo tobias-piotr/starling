@@ -78,12 +78,18 @@ func (m *MockedAiClient) Send(prompt string) (string, error) {
 
 func TestRequestTrip(t *testing.T) {
 	repo := &MockedTripRepository{&Trip{}}
-	aiClient := &MockedAiClient{"test response", nil}
+	resp := "test response"
+	aiClient := &MockedAiClient{resp, nil}
 	err := RequestTrip(repo, aiClient, "1")
 	assert.Nil(t, err)
 	assert.Equal(t, CompletedStatus, repo.trip.Status)
-	assert.Equal(t, "test response", repo.trip.Result.Summary)
-	// TODO: Test remaining fields
+	assert.Equal(t, resp, repo.trip.Result.Summary)
+	assert.Equal(t, resp, repo.trip.Result.Attractions)
+	assert.Equal(t, resp, repo.trip.Result.Weather)
+	assert.Equal(t, resp, repo.trip.Result.Prices)
+	assert.Equal(t, resp, repo.trip.Result.Luggage)
+	assert.Equal(t, resp, repo.trip.Result.Documents)
+	assert.Equal(t, resp, repo.trip.Result.Commuting)
 }
 
 func TestRequestTripFailed(t *testing.T) {
@@ -93,6 +99,6 @@ func TestRequestTripFailed(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, FailedStatus, repo.trip.Status)
 	cerr := err.(*domain.CompositeErr)
-	assert.Equal(t, 1, len(cerr.Errs))
-	// TODO: Adjust number of errors
+	// All the fields should have failed
+	assert.Equal(t, len(requestResultConf), len(cerr.Errs))
 }

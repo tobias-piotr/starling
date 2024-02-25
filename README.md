@@ -35,6 +35,8 @@ Next:
 - Restart endpoint
 - README
 - Some interface (templ + htmx + tailwind + daisyui)
+- Patch endpoint
+- Extra field in the result that would address additional requirements
 
 ## Installation
 
