@@ -9,6 +9,10 @@ import (
 	_ "starling/cmd/worker"
 )
 
+// @title Starling
+// @version 0.1.0
+// @description Smart travel assistant
+// @BasePath /sl
 func main() {
 	cmd.Execute()
 }

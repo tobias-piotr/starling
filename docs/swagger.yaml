@@ -1,0 +1,162 @@
+basePath: /sl
+definitions:
+  trips.Date:
+    properties:
+      time.Time:
+        type: string
+    type: object
+  trips.Trip:
+    properties:
+      budget:
+        type: integer
+      created_at:
+        type: string
+      date_from:
+        $ref: '#/definitions/trips.Date'
+      date_to:
+        $ref: '#/definitions/trips.Date'
+      destination:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      origin:
+        type: string
+      requirements:
+        type: string
+      result:
+        $ref: '#/definitions/trips.TripResult'
+      status:
+        $ref: '#/definitions/trips.TripStatus'
+    type: object
+  trips.TripData:
+    properties:
+      budget:
+        type: integer
+      date_from:
+        $ref: '#/definitions/trips.Date'
+      date_to:
+        $ref: '#/definitions/trips.Date'
+      destination:
+        type: string
+      name:
+        type: string
+      origin:
+        type: string
+      requirements:
+        type: string
+    type: object
+  trips.TripOverview:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        $ref: '#/definitions/trips.TripStatus'
+    type: object
+  trips.TripResult:
+    properties:
+      attractions:
+        type: string
+      commuting:
+        type: string
+      documents:
+        type: string
+      id:
+        type: string
+      luggage:
+        type: string
+      prices:
+        type: string
+      summary:
+        type: string
+      weather:
+        type: string
+    type: object
+  trips.TripStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-varnames:
+    - DraftStatus
+    - RequestedStatus
+    - FailedStatus
+    - CompletedStatus
+info:
+  contact: {}
+  description: Smart travel assistant
+  title: Starling
+  version: 0.1.0
+paths:
+  /api/v1/trips:
+    get:
+      description: Get a list of trips
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/trips.TripOverview'
+            type: array
+      summary: Get trips
+      tags:
+      - trips
+    post:
+      description: Create a new trip
+      parameters:
+      - description: Request body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/trips.TripData'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/trips.Trip'
+      summary: Create trip
+      tags:
+      - trips
+  /api/v1/trips/{id}:
+    get:
+      description: Get trip by id
+      parameters:
+      - description: Trip ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/trips.Trip'
+            type: array
+      summary: Get trip
+      tags:
+      - trips
+  /api/v1/trips/{id}/request:
+    post:
+      description: Request trip result
+      parameters:
+      - description: Trip ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      summary: Request trip
+      tags:
+      - trips
+swagger: "2.0"

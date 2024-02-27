@@ -9,6 +9,8 @@ import (
 	"os"
 	"time"
 
+	_ "starling/docs"
+
 	"starling/cmd"
 	"starling/internal/database"
 	"starling/internal/events"
@@ -18,6 +20,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/cobra"
+	"github.com/swaggo/echo-swagger"
 )
 
 var (
@@ -65,12 +68,14 @@ func createServer() *echo.Echo {
 var serverCmd = &cobra.Command{
 	Use:   "server",
 	Short: "Starts server",
+
 	Run: func(_ *cobra.Command, _ []string) {
 		db := getDB()
 		redisPublisher := getRedisPublisher()
 		e := createServer()
 
 		router := e.Group(prefix)
+		router.GET("/docs/*", echoSwagger.WrapHandler)
 		router.GET("/health", func(c echo.Context) error {
 			return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 		})

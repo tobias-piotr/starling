@@ -31,8 +31,6 @@ Extra:
 
 Next:
 
-- Remaining prompts
-- Restart endpoint
 - README
 - Some interface (templ + htmx + tailwind + daisyui)
 - Patch endpoint

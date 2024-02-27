@@ -171,8 +171,9 @@ func RequestTrip(tripsRepository TripRepository, aiClient ai.AIClient, tripID st
 	}
 
 	var wg sync.WaitGroup
-	errs := make(chan error)
+	errs := make(chan error, len(requestResultConf))
 
+	// Process each field concurrently
 	for _, c := range requestResultConf {
 		if c.Condition(trip) {
 			wg.Add(1)
