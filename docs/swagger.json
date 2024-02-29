@@ -1,0 +1,245 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Smart travel assistant",
+        "title": "Starling",
+        "contact": {},
+        "version": "0.1.0"
+    },
+    "basePath": "/sl",
+    "paths": {
+        "/api/v1/trips": {
+            "get": {
+                "description": "Get a list of trips",
+                "tags": [
+                    "trips"
+                ],
+                "summary": "Get trips",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/trips.TripOverview"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new trip",
+                "tags": [
+                    "trips"
+                ],
+                "summary": "Create trip",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/trips.TripData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/trips.Trip"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/trips/{id}": {
+            "get": {
+                "description": "Get trip by id",
+                "tags": [
+                    "trips"
+                ],
+                "summary": "Get trip",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Trip ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/trips.Trip"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/trips/{id}/request": {
+            "post": {
+                "description": "Request trip result",
+                "tags": [
+                    "trips"
+                ],
+                "summary": "Request trip",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Trip ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "trips.Date": {
+            "type": "object",
+            "properties": {
+                "time.Time": {
+                    "type": "string"
+                }
+            }
+        },
+        "trips.Trip": {
+            "type": "object",
+            "properties": {
+                "budget": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "date_from": {
+                    "$ref": "#/definitions/trips.Date"
+                },
+                "date_to": {
+                    "$ref": "#/definitions/trips.Date"
+                },
+                "destination": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "requirements": {
+                    "type": "string"
+                },
+                "result": {
+                    "$ref": "#/definitions/trips.TripResult"
+                },
+                "status": {
+                    "$ref": "#/definitions/trips.TripStatus"
+                }
+            }
+        },
+        "trips.TripData": {
+            "type": "object",
+            "properties": {
+                "budget": {
+                    "type": "integer"
+                },
+                "date_from": {
+                    "$ref": "#/definitions/trips.Date"
+                },
+                "date_to": {
+                    "$ref": "#/definitions/trips.Date"
+                },
+                "destination": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "requirements": {
+                    "type": "string"
+                }
+            }
+        },
+        "trips.TripOverview": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/trips.TripStatus"
+                }
+            }
+        },
+        "trips.TripResult": {
+            "type": "object",
+            "properties": {
+                "attractions": {
+                    "type": "string"
+                },
+                "commuting": {
+                    "type": "string"
+                },
+                "documents": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "luggage": {
+                    "type": "string"
+                },
+                "prices": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "weather": {
+                    "type": "string"
+                }
+            }
+        },
+        "trips.TripStatus": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "x-enum-varnames": [
+                "DraftStatus",
+                "RequestedStatus",
+                "FailedStatus",
+                "CompletedStatus"
+            ]
+        }
+    }
+}

@@ -16,6 +16,7 @@ func customErrorHandler(err error, c echo.Context) {
 	if c.Response().Committed {
 		return
 	}
+	// TODO: Add error handling for http errors
 	c.JSON(http.StatusInternalServerError, map[string]string{"message": "Internal Server Error"})
 	slog.Error("Internal server error", "error", err)
 }

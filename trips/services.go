@@ -41,6 +41,8 @@ func (s *TripService) GetTrip(id string) (*Trip, error) {
 }
 
 func (s *TripService) RequestTrip(id string) error {
+	slog.Info("Requesting trip", "id", id)
+
 	trip, err := s.tripRepository.Get(id)
 	if err != nil {
 		return err
@@ -49,13 +51,14 @@ func (s *TripService) RequestTrip(id string) error {
 		return &domain.NotFoundErr{Msg: "Trip not found"}
 	}
 
-	err = trip.ValidateRequest()
-	if err != nil {
+	if err := trip.ValidateRequest(); err != nil {
 		return &domain.ValidationErr{Err: err}
 	}
 
-	err = s.tripRepository.Update(id, map[string]any{"status": RequestedStatus.String()})
-	if err != nil {
+	if err := s.tripRepository.Update(
+		id,
+		map[string]any{"status": RequestedStatus.String()},
+	); err != nil {
 		return err
 	}
 
